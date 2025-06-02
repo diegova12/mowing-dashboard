@@ -5,34 +5,17 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
-# ─── 1) Make sure alembic can import your models ───────────────────────────────
-# Adjust the path if your backend folder lives elsewhere
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, project_root)
 
-# ─── 2) Import your SQLAlchemy Base.metadata ─────────────────────────────────
-# backend/models.py should define Base = declarative_base()
+# SQLAlchemy Base.metadata
 from backend.models import Base
 target_metadata = Base.metadata
 
-# ─── 3) Alembic Config object ────────────────────────────────────────────────
+# Alembic Config object 
 config = context.config
 
-# If you prefer env vars for the URL, you can override here:
-# url = os.getenv("DATABASE_URL")
-# if url:
-#     config.set_main_option("sqlalchemy.url", url)
-
-# ─── 4) Set up Python logging per alembic.ini ─────────────────────────────────
 fileConfig(config.config_file_name)
-
-# ─── 5) “run_migrations_online()” below will now see your metadata ─────────────
-
-
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
 
 
 def run_migrations_offline() -> None:

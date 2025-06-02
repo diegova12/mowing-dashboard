@@ -7,21 +7,18 @@ from datetime import date, timedelta
 from backend.models import Base, Client, Crew, Job
 from backend.crud import engine, SessionLocal
 
-# 1) Wipe & recreate all tables
 print("Dropping & recreating database schema…")
 Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 db = SessionLocal()
 
-# 2) Seed Crews
 crew_names = ["North Division", "South Division", "East Division", "West Division", "Central Team"]
 crews = [Crew(name=name) for name in crew_names]
 db.add_all(crews)
 db.commit()
 print(f"Created {len(crews)} crews")
 
-# Helper generators
 def random_name():
     first = ''.join(random.choices(string.ascii_lowercase, k=random.randint(4,8))).capitalize()
     last  = ''.join(random.choices(string.ascii_lowercase, k=random.randint(4,8))).capitalize()
@@ -39,7 +36,6 @@ def random_address():
     suffix = random.choice(["St", "Ave", "Blvd", "Ln", "Rd"])
     return f"{num} {street} {suffix}"
 
-# 3) Seed Clients
 clients = []
 for _ in range(25):
     fn, ln = random_name()
@@ -54,7 +50,6 @@ db.add_all(clients)
 db.commit()
 print(f"Created {len(clients)} clients")
 
-# 4) Seed Jobs
 service_types = ["mowing", "mulching", "design", "pruning"]
 start_date = date(2025, 5, 18)
 end_date   = date(2025, 6, 7)

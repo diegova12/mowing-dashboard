@@ -13,7 +13,7 @@ from prophet import Prophet
 from prophet.plot import plot_plotly
 from streamlit_calendar_semver import calendar as st_calendar
 
-# ── Page config & styling ─────────────────────────────────────────────
+# Page config and styling
 st.set_page_config(
     page_title="Landscaping Dashboard",
     layout="wide"
@@ -30,7 +30,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ── Fetch jobs & normalize ─────────────────────────────────────────────
+# Job fetching and processing
 API_URL = "http://127.0.0.1:8000/jobs/"
 jobs = requests.get(API_URL).json()
 df = pd.json_normalize(jobs)
@@ -38,14 +38,14 @@ df["scheduled"] = pd.to_datetime(df["scheduled"])
 df["end_date"]  = df["scheduled"] + pd.Timedelta(days=1)
 df["month"]     = df["scheduled"].dt.to_period("M").dt.to_timestamp()
 
-# ── Revenue series ─────────────────────────────────────────────────────
+# Revenue aggregation
 rev = (
     df.groupby("month")
       .agg(total_revenue=("price","sum"))
       .reset_index()
 )
 
-# ── Title & key metrics ────────────────────────────────────────────────
+# Streamlit app title and metrics
 st.title("Landscaping Dashboard")
 today = pd.Timestamp.today().normalize()
 
@@ -56,7 +56,7 @@ c3.metric("Revenue This Month",
           f"${df[df['scheduled'].dt.to_period('M')==today.to_period('M')]['price'].sum():,.2f}")
 c4.metric("Unique Clients", df["client_id"].nunique())
 
-# ── Sidebar: Weather ───────────────────────────────────────────────────
+# Weather Sidebar
 with st.sidebar.expander("🌦 Weather Alerts", expanded=True):
     API_KEY = os.getenv("OPENWEATHER_API_KEY")
     lat, lon = df.iloc[0][["latitude","longitude"]]
@@ -88,7 +88,7 @@ with st.sidebar.expander("🌦 Weather Alerts", expanded=True):
     else:      st.success(f"☀️ No rain tomorrow ({tomorrow})")
     if freeze: st.error(  f"❄️ Freeze risk tomorrow ({tomorrow})")
 
-# ── Main tabs ──────────────────────────────────────────────────────────
+# Tabs
 tab1, tab2, tab3, tab4 = st.tabs([
     "📅 Calendar",
     "🗺️ Map View",
@@ -96,11 +96,10 @@ tab1, tab2, tab3, tab4 = st.tabs([
     "📈 Forecast"
 ])
 
-# ── TAB 1: FullCalendar widget ─────────────────────────────────────────
+# Calendar Tab
 with tab1:
     st.header("Job Schedule")
 
-    # build our “canonical” list of events
     orig_events = [
         {
             "id":    str(int(r.id)),
@@ -118,12 +117,10 @@ with tab1:
     }
     raw = st_calendar(events=orig_events, options=options, key="job_calendar")
 
-    # Flatten + normalize raw → list of dicts
     updated_events = []
     if raw:
         candidates = raw if isinstance(raw, list) else [raw]
         for item in candidates:
-            # decode JSON strings
             if isinstance(item, str):
                 try:
                     obj = json.loads(item)
@@ -132,30 +129,25 @@ with tab1:
             else:
                 obj = item
 
-            # obj may be dict or list
             if isinstance(obj, dict):
                 updated_events.append(obj)
             elif isinstance(obj, list):
                 updated_events.extend([sub for sub in obj if isinstance(sub, dict)])
 
-    # Only keep those with a valid "id"
     updated_events = [e for e in updated_events if e.get("id")]
 
-    # If nothing changed or nothing valid, skip
     if updated_events and updated_events != orig_events:
         for new_evt in updated_events:
             evt_id = new_evt.get("id")
             if not evt_id:
                 continue
 
-            # find the original event with that same id
             old_evt = next((e for e in orig_events if e.get("id") == evt_id), None)
             if not old_evt:
-                # somehow the ID is new? skip it
                 continue
 
             old_start = old_evt.get("start", "")
-            new_start = new_evt.get("start", "")[:10]  # YYYY-MM-DD
+            new_start = new_evt.get("start", "")[:10]  
             if new_start and new_start != old_start:
                 res = requests.patch(
                     f"http://127.0.0.1:8000/jobs/{evt_id}/reschedule",
@@ -166,12 +158,11 @@ with tab1:
                 else:
                     st.error(f"Failed to move Job {evt_id}")
 
-        # reload dataframe & UI with the new dates
         st.experimental_rerun()
 
 
 
-# ── TAB 2: Map & Route ────────────────────────────────────────────────────
+# Map Tab
 with tab2:
     st.header("Job Locations")
     st.map(df.rename(columns={"latitude":"lat","longitude":"lon"})[["lat","lon"]])
@@ -197,7 +188,7 @@ with tab2:
         )
         st.plotly_chart(fig, use_container_width=True)
 
-# ── TAB 3: Financials ─────────────────────────────────────────────────────
+# Financials
 with tab3:
     st.header("Monthly Revenue by Service")
     rev_svc = (
@@ -218,7 +209,7 @@ with tab3:
     fig.update_layout(template="plotly_dark", margin={"l":40,"r":20,"t":50,"b":40})
     st.plotly_chart(fig, use_container_width=True)
 
-# ── TAB 4: Prophet Forecast ───────────────────────────────────────────────
+# Prophet Forecast
 with tab4:
     st.header("Revenue Forecast (Next 12 Months)")
     dfp = rev.rename(columns={"month":"ds","total_revenue":"y"})

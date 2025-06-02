@@ -12,7 +12,6 @@ from backend.models import Base, Job
 from backend.crud import engine, get_db
 from backend.schemas import JobSchema, JobCreate
 
-# Create tables if they don't exist
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -20,7 +19,6 @@ app = FastAPI(
     version="1.0"
 )
 
-# Allow Streamlit (and any other) to hit this API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -29,13 +27,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ─── Jobs Endpoint ──────────────────────────────────────────────────────────
+# Jobs Endpoint 
 @app.get("/jobs/", response_model=List[JobSchema])
 def read_jobs(db: Session = Depends(get_db)):
     return db.query(Job).all()
 
 
-# ─── Reschedule Endpoint ────────────────────────────────────────────────────
+# Reschedule Endpoint
 class RescheduleRequest(BaseModel):
     scheduled: date
 
@@ -54,10 +52,10 @@ def reschedule_job(
     return job
 
 
-# ─── Route Optimization Endpoint ────────────────────────────────────────────
+# Route Optimization Endpoint 
 class OptimizeRequest(BaseModel):
-    coords: List[dict]  # each dict has {"latitude": float, "longitude": float}
-
+    coords: List[dict] 
+    
 @app.post("/optimize/")
 def optimize_route(req: OptimizeRequest):
     coords = req.coords
@@ -65,7 +63,6 @@ def optimize_route(req: OptimizeRequest):
     if n < 2:
         return {"route": list(range(n))}
 
-    # Build a simple Euclidean distance matrix (scaled to integers)
     dist_matrix = []
     for i in range(n):
         xi, yi = coords[i]["latitude"], coords[i]["longitude"]
@@ -76,7 +73,6 @@ def optimize_route(req: OptimizeRequest):
             row.append(int(d * 100000))
         dist_matrix.append(row)
 
-    # OR-Tools setup
     manager = pywrapcp.RoutingIndexManager(n, 1, 0)
     routing = pywrapcp.RoutingModel(manager)
     def distance_callback(from_index, to_index):
