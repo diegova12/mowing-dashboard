@@ -67,9 +67,6 @@ The Landscaping Dashboard helps a landscaping business:
 
 ## Screenshots
 
-<details>
-<summary>Click to expand sample app screenshots</summary>
-
 1. **Landing Dashboard & KPI Cards**  
 <img width="1459" alt="Screenshot 2025-06-01 at 9 40 43 PM" src="https://github.com/user-attachments/assets/ea669c5b-b0e3-420b-a3c8-d1a61ffb0b4d" />
 
@@ -89,5 +86,3 @@ The Landscaping Dashboard helps a landscaping business:
 
 6. **Weather Alerts Sidebar**  
 <img width="337" alt="Screenshot 2025-06-01 at 9 43 16 PM" src="https://github.com/user-attachments/assets/593327cb-0e46-425f-bc5f-87895d037eb1" />
-
-</details>
