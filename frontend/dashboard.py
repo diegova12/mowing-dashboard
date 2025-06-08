@@ -19,14 +19,7 @@ st.set_page_config(
     layout="wide"
 )
 st.markdown(
-    """
-    <style>
-      /* hide header & footer */
-      header, footer { visibility: hidden; }
-      /* tighten top/bottom padding */
-      .css-18e3th9 { padding-top: 1rem; padding-bottom: 1rem; }
-    </style>
-    """,
+    ,
     unsafe_allow_html=True
 )
 
