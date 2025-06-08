@@ -13,7 +13,6 @@ class JobBase(BaseModel):
     longitude: float
 
 class JobCreate(JobBase):
-    """Use this if you ever want a POST /jobs endpoint."""
     pass
 
 class JobSchema(JobBase):
