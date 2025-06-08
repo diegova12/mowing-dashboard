@@ -24,7 +24,7 @@ st.markdown(
 )
 
 # Job fetching and processing
-API_URL = "http://127.0.0.1:8000/jobs/"
+API_URL = 
 jobs = requests.get(API_URL).json()
 df = pd.json_normalize(jobs)
 df["scheduled"] = pd.to_datetime(df["scheduled"])
