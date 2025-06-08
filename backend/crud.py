@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 from .models import Base  
 
-DATABASE_URL = "postgresql://myuser:mypassword@localhost:5432/landscape_db"
+DATABASE_URL = 
 
 # Engine
 engine = create_engine(
